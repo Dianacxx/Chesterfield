@@ -25,9 +25,8 @@ public with sharing class ReportController {
         PageReference pdf = Page.ReportLayout;
         
         List<User> users = [SELECT Id, Name FROM User WHERE Name != null ];
-        List<ServiceContract> serviceContracts = [SELECT Name, Commission_Advance__c, Commission__c	, Owner_Name__c, Sales_Commission__c, Net_Commission__c FROM ServiceContract
-        WHERE  Commission_Date__c >:initialDate AND Commission_Date__c <:endDate LIMIT 1000];
-        System.debug(serviceContracts.size());
+        // List<ServiceContract> serviceContracts = [SELECT Name, Commission_Advance__c, Commission__c	, Owner_Name__c, Sales_Commission__c, Net_Commission__c FROM ServiceContract
+        // WHERE  Commission_Date__c >:initialDate AND Commission_Date__c <:endDate LIMIT 1000];
         model = new List<ReportModel>();
         count = 0;
         salesCommissionSum = 0;
@@ -36,33 +35,38 @@ public with sharing class ReportController {
         decCommAdvSum =0; 
         netCommissionTot = 0;
         for(User u: users){
-            for(ServiceContract sc : serviceContracts){
-                if(u.Name == sc.Owner_name__c){
-                    if (sc.Sales_Commission__c == null) {
-                        sc.Sales_Commission__c = 0;
+            for ( List<ServiceContract> serviceContracts : [SELECT Name, Commission_Advance__c, Commission__c	, Owner_Name__c, Sales_Commission__c, Net_Commission__c FROM ServiceContract
+                WHERE  Commission_Date__c >:initialDate AND Commission_Date__c <:endDate AND Owner_name__c =:u.Name]){
+                    System.debug('INITIAL DATE' + initialDate + 'FINAL DATE' + endDate);
+                    for(ServiceContract sc : serviceContracts){
+                        // if(u.Name == sc.Owner_name__c){
+                            if (sc.Sales_Commission__c == null) {
+                                sc.Sales_Commission__c = 0;
+                            }
+                            if (sc.Commission_Advance__c == null) {
+                                sc.Commission_Advance__c = 0;
+                            }
+                            
+                            count ++;
+                            userServiceContracts.add(sc);
+                            salesCommissionSum = salesCommissionSum + sc.Sales_Commission__c;
+                            decCommAdvSum = decCommAdvSum + sc.Commission_Advance__c;
+                            netCommissionTot = netCommissionTot + sc.Net_Commission__c;
+                            System.debug('CURRENT SERVICE CONTRACT'+ sc.Name);
+                            
+                            System.debug('SALES COMMISSION SUM -->'+ salesCommissionSum);
+                            System.debug('COMMISSION ADVANCE SUM -->'+ commissionAdvanceSum);
+                        // }
+                        commissionAdvanceSum = Integer.valueOf(decCommAdvSum);
                     }
-                    if (sc.Commission_Advance__c == null) {
-                        sc.Commission_Advance__c = 0;
-                    }
-                    
-                    count ++;
-                    userServiceContracts.add(sc);
-                    salesCommissionSum = salesCommissionSum + sc.Sales_Commission__c;
-                    decCommAdvSum = decCommAdvSum + sc.Commission_Advance__c;
-                    netCommissionTot = netCommissionTot + sc.Net_Commission__c;
-                    System.debug('SALES COMMISSION SUM -->'+ salesCommissionSum);
-                    System.debug('COMMISSION ADVANCE SUM -->'+ commissionAdvanceSum);
+                }    
+                if(userServiceContracts.size() > 0){
+                    userCount++;
+                    model.add(new ReportModel(u.Name, userServiceContracts, count, salesCommissionSum, commissionAdvanceSum, netCommissionTot));
                 }
-                commissionAdvanceSum = Integer.valueOf(decCommAdvSum);
-            }
-            if(userServiceContracts.size() > 0){
-                userCount++;
-                model.add(new ReportModel(u.Name, userServiceContracts, count, salesCommissionSum, commissionAdvanceSum, netCommissionTot));
-            }
             
             userServiceContracts.clear();
             count = 0; 
-            // userCount = 0;     
             salesCommissionSum = 0;
             commissionAdvanceSum = 0;
             decCommAdvSum =0;
