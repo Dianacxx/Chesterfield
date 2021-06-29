@@ -1,0 +1,211 @@
+<apex:page  standardController="ServiceContract" extensions="ReportController" renderAs="PDF" showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false">
+    <head>
+        <style>
+            table td, th {
+                border: 1px solid rgb(196, 196, 196);
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 12px;
+
+            }
+            #report {
+                border-collapse: collapse;
+            }
+            .totalUsersDisplay {
+                border: none;
+            }
+            
+            .headerGroup {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            }
+            .mainHeader{
+                font-size: 18px;
+            
+            }
+            .user {
+                vertical-align: text-top;
+                text-align: left;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 12px;
+                font-weight: bold;
+
+            }
+            .headers{
+                text-align: center;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 12px;
+            }
+            .values{
+                float: right;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 12px;
+            }
+            .count{
+                float: right;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            .totals {
+                float: right;
+                font-size: 10px;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-weight: bold;
+
+
+            }
+            .sums {
+                float: right;
+                font-size: 12px;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-weight: bold;
+
+            }
+            
+        
+        </style>
+        
+    </head>
+
+
+        <apex:repeat value="{!model}" var="u" >
+            <div class = "headerGroup"> 
+                <h1 class="mainHeader"> Service Contract Commission Report</h1>
+                <apex:outputText style="font-size: 12px" 
+                value="Report generated in {0,date,dd/MM/yyyy HH:mm:ss} Pacific Standard Time/PST for the user {1} ">
+                <apex:param value="{!NOW()}"/>
+                <apex:param value="{!u.user}"/>
+            </apex:outputText>
+        
+            </div>
+            <br/>  
+
+            <table id="report">
+                <tr class = "headers">
+                    <th>Opportunity Owner</th>
+                    <th>Contract Name</th>
+                    <th>Sales Commission</th>
+                    <th>Commission Advance</th>
+                    <th>Net Commission</th>
+                </tr>           
+            
+                <tr>
+                    <td>
+                        <div class="user" > {!u.user} </div>
+                        
+                    </td>
+
+                    <td>
+                        <apex:repeat value="{!u.serviceContracts}" var="sc"> 
+                                <div class = "svName">{!sc.Name}  </div>
+                        </apex:repeat>
+                        
+                    </td>
+                    <td>
+                        <apex:repeat value="{!u.serviceContracts}" var="sc">
+                            <div class ="values"> 
+                                <apex:outputText value="{0, Number, Currency}" >
+                                        <apex:param value="{!sc.Sales_Commission__c }"/>
+                                
+                                </apex:outputText> 
+                            </div>
+                            
+                                <br/>                                                  
+                        </apex:repeat>      
+                    </td>
+                    <td>
+                        <apex:repeat value="{!u.serviceContracts}" var="sc">
+                            <div class ="values"> 
+                                <apex:outputText value="{0, Number, Currency}" >
+                                    <apex:param value="{!sc.Commission_Advance__c}"/>                        
+                                </apex:outputText> 
+                            </div>
+
+                                <br/>                           
+                        </apex:repeat>
+                        
+                    </td>
+                    <td>
+                        <apex:repeat value="{!u.serviceContracts}" var="sc">
+                            <div class ="values"> 
+
+                                <apex:outputText value="{0, Number, Currency}" >
+                                    <apex:param value="{!sc.Net_Commission__c}"/>                        
+                                </apex:outputText>
+                            </div> 
+                                
+                            <br/>                           
+                        </apex:repeat>
+                        
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td>
+                        <div class ="totals"> 
+                            Subtotal Sum
+                        </div> 
+                    </td>                
+                    <td>
+                        
+                    </td>
+                    <td> 
+                        <div class ="sums"> 
+
+                            <apex:outputText value="{0, Number, Currency}" >
+                                <apex:param value="{!u.salesCommissionSum}"/>
+                        
+                            </apex:outputText>
+                        </div> 
+                        
+                    </td>
+                    <td> 
+                        <div class ="sums"> 
+                            <apex:outputText value="{0, number, Currency}" >
+                                <apex:param value="{!u.commissionAdvanceSum}"/>
+                            </apex:outputText>
+                        </div> 
+                        
+                    </td>
+                    <td> 
+                        <div class ="sums"> 
+                            <apex:outputText value="{0, Number, Currency}" >
+                                <apex:param value="{!u.netCommissionTot}"/>
+                            </apex:outputText>
+                        </div> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class ="totals"> 
+                            Count
+                        </div> 
+
+                    </td>
+                    <td> 
+                        <div class ="count"> 
+
+                            {!u.servContractCount}
+                        
+                        </div> 
+                    
+                    </td>
+                    <td>
+
+                    </td>
+                    <td>
+                        
+                    </td>
+                    <td>
+                        
+                    </td>
+                
+                </tr>
+                <div style="page-break-after: always;">&nbsp; </div>
+            </table>
+        </apex:repeat>
+        <table class="totalUsersDisplay" style="width:50%" >
+            <td style="border: none; font-weight: bold;"> The total of users displayed is </td>
+            <td style="border: none;"> {!userCount} </td>
+        </table>
+
+</apex:page>

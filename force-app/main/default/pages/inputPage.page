@@ -1,0 +1,27 @@
+<apex:page standardController="ServiceContract" extensions="ReportController">
+        <apex:form> 
+         <apex:pageBlock title="Define initial and ending Commission Dates">
+          
+           
+          <apex:pageBlockSection >
+           
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Inicial Commission Date" for="initialDate"/>
+              <apex:inputText value="{!initialDate}" id="initialDate"/>
+            </apex:pageBlockSectionItem>
+            
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="End Commission Date" for="endDate"/>
+              <apex:inputText value="{!endDate}" id="endDate"/>
+            </apex:pageBlockSectionItem>
+           
+          </apex:pageBlockSection>
+
+          <center >
+            <apex:commandButton action="{!CreateReport}" value="Generate PDF"/>
+          </center>          
+    
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>
